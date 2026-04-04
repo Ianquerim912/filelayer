@@ -33,18 +33,9 @@ For development:
 pip install -e .[dev]
 ```
 
-## Local filesystem example
+## Quick start
 
-Environment:
-
-```env
-STORAGE_PROVIDER=local
-STORAGE_DEFAULT_PREFIX=my-app
-STORAGE_ENCODING=utf-8
-LOCAL_STORAGE_BASE_PATH=./data/storage
-```
-
-Usage:
+No configuration needed — local filesystem is the default:
 
 ```python
 from filelayer import StorageService
@@ -58,6 +49,15 @@ print(content)
 storage.write_file_bytes("documents/example.bin", b"\x00\x01\x02")
 print(storage.read_file_bytes("documents/example.bin"))
 print(storage.exists("documents/example.txt"))
+```
+
+By default, files are stored under `./data/storage`. You can customize this and other settings via environment variables or a `.env` file:
+
+```env
+STORAGE_PROVIDER=local          # default
+STORAGE_DEFAULT_PREFIX=my-app   # optional path prefix
+STORAGE_ENCODING=utf-8          # default
+LOCAL_STORAGE_BASE_PATH=./data/storage  # default
 ```
 
 ## Wasabi / S3-compatible example

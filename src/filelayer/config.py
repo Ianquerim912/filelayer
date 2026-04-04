@@ -20,7 +20,7 @@ class StorageSettings(BaseSettings):
     )
 
     provider: Literal["local", "s3"] = Field(
-        ...,
+        default="local",
         validation_alias=AliasChoices("STORAGE_PROVIDER"),
     )
 
