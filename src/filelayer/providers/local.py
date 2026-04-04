@@ -198,3 +198,7 @@ class LocalFileProvider(FileProvider):
     def exists(self, filepath: str) -> bool:
         resolved = self._resolve_path(filepath)
         return resolved.exists() and resolved.is_file()
+
+    def resolve_path(self, filepath: str) -> str:
+        """Return the absolute filesystem path for the given filepath."""
+        return str(self._resolve_path(filepath))

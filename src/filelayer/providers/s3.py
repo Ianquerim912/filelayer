@@ -324,3 +324,8 @@ class S3FileProvider(FileProvider):
             raise StorageReadError(f"Failed to check existence for S3 object: {filepath}") from exc
         except Exception as exc:
             raise StorageReadError(f"Failed to check existence for S3 object: {filepath}") from exc
+
+    def resolve_path(self, filepath: str) -> str:
+        """Return the full S3 path as ``s3://<bucket>/<key>``."""
+        key = self._normalize_filepath(filepath)
+        return f"s3://{self.bucket}/{key}"

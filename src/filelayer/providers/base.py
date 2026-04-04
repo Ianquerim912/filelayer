@@ -34,3 +34,8 @@ class FileProvider(ABC):
     def exists(self, filepath: str) -> bool:
         """Return True if the file exists."""
         raise NotImplementedError
+
+    @abstractmethod
+    def resolve_path(self, filepath: str) -> str:
+        """Return the full resolved path or key for the given filepath."""
+        raise NotImplementedError

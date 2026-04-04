@@ -40,3 +40,11 @@ class StorageService:
     def exists(self, filepath: str) -> bool:
         """Return True if the file exists."""
         return self.provider.exists(filepath)
+
+    def resolve_path(self, filepath: str) -> str:
+        """Return the full resolved path or key for the given filepath.
+
+        For local storage, returns the absolute filesystem path.
+        For S3, returns ``s3://<bucket>/<key>``.
+        """
+        return self.provider.resolve_path(filepath)

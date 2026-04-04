@@ -17,6 +17,7 @@ It exposes a minimal API:
 - `read_file_bytes(filepath) -> bytes`
 - `write_file_bytes(filepath, file_bytes) -> None`
 - `exists(filepath) -> bool`
+- `resolve_path(filepath) -> str`
 
 For S3-compatible backends, `filepath` is treated as the object key.
 For local storage, `filepath` is resolved relative to the configured local base path.
@@ -49,6 +50,8 @@ print(content)
 storage.write_file_bytes("documents/example.bin", b"\x00\x01\x02")
 print(storage.read_file_bytes("documents/example.bin"))
 print(storage.exists("documents/example.txt"))
+print(storage.resolve_path("documents/example.txt"))
+# → /absolute/path/to/data/storage/documents/example.txt
 ```
 
 By default, files are stored under `./data/storage`. You can customize this and other settings via environment variables or a `.env` file:
@@ -92,6 +95,8 @@ storage = StorageService.from_settings()
 storage.write_file("documents/example.txt", "Hello from Wasabi")
 print(storage.read_file("documents/example.txt"))
 print(storage.exists("documents/example.txt"))
+print(storage.resolve_path("documents/example.txt"))
+# → s3://your-bucket/my-app/documents/example.txt
 ```
 
 ## S3 caching
