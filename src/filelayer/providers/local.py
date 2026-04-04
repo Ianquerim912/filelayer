@@ -21,9 +21,7 @@ class LocalFileProvider(FileProvider):
         logger: logging.Logger | None = None,
     ) -> None:
         if settings.provider != "local":
-            raise StorageConfigurationError(
-                "LocalFileProvider requires STORAGE_PROVIDER=local."
-            )
+            raise StorageConfigurationError("LocalFileProvider requires STORAGE_PROVIDER=local.")
 
         self.settings = settings
         self.root_path = settings.local_base_path.resolve()

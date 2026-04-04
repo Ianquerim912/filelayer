@@ -31,9 +31,7 @@ class S3FileProvider(FileProvider):
         logger: logging.Logger | None = None,
     ) -> None:
         if settings.provider != "s3":
-            raise StorageConfigurationError(
-                "S3FileProvider requires STORAGE_PROVIDER=s3."
-            )
+            raise StorageConfigurationError("S3FileProvider requires STORAGE_PROVIDER=s3.")
 
         self.settings = settings
         self.bucket = settings.s3_bucket
@@ -275,10 +273,6 @@ class S3FileProvider(FileProvider):
             error_code = exc.response.get("Error", {}).get("Code")
             if error_code in {"404", "NoSuchKey", "NotFound"}:
                 return False
-            raise StorageReadError(
-                f"Failed to check existence for S3 object: {filepath}"
-            ) from exc
+            raise StorageReadError(f"Failed to check existence for S3 object: {filepath}") from exc
         except Exception as exc:
-            raise StorageReadError(
-                f"Failed to check existence for S3 object: {filepath}"
-            ) from exc
+            raise StorageReadError(f"Failed to check existence for S3 object: {filepath}") from exc

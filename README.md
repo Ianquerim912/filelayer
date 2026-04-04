@@ -1,5 +1,10 @@
 # filelayer
 
+[![CI](https://github.com/sireto/filelayer/actions/workflows/ci.yml/badge.svg)](https://github.com/sireto/filelayer/actions/workflows/ci.yml)
+[![PyPI version](https://img.shields.io/pypi/v/filelayer.svg)](https://pypi.org/project/filelayer/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+
 `filelayer` is a small Python package that provides a simple file abstraction over:
 
 - local filesystem
@@ -95,3 +100,11 @@ print(storage.exists("documents/example.txt"))
 - `write_file()` stores text using `STORAGE_ENCODING`.
 - `write_file_bytes()` stores raw bytes unchanged.
 - Local provider prevents path traversal outside the configured storage root.
+
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).

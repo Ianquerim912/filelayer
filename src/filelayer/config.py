@@ -10,6 +10,8 @@ from .exceptions import StorageConfigurationError
 
 
 class StorageSettings(BaseSettings):
+    """Configuration for filelayer, loaded from environment variables or a .env file."""
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -97,7 +99,7 @@ class StorageSettings(BaseSettings):
         return value.expanduser()
 
     @model_validator(mode="after")
-    def validate_provider_settings(self) -> "StorageSettings":
+    def validate_provider_settings(self) -> StorageSettings:
         if self.provider == "s3":
             missing: list[str] = []
 
@@ -117,16 +119,8 @@ class StorageSettings(BaseSettings):
 
     @property
     def s3_secret_access_key_value(self) -> str | None:
-        return (
-            self.s3_secret_access_key.get_secret_value()
-            if self.s3_secret_access_key
-            else None
-        )
+        return self.s3_secret_access_key.get_secret_value() if self.s3_secret_access_key else None
 
     @property
     def s3_session_token_value(self) -> str | None:
-        return (
-            self.s3_session_token.get_secret_value()
-            if self.s3_session_token
-            else None
-        )
+        return self.s3_session_token.get_secret_value() if self.s3_session_token else None

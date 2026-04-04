@@ -11,6 +11,7 @@ def create_file_provider(
     settings: StorageSettings | None = None,
     logger: logging.Logger | None = None,
 ) -> FileProvider:
+    """Create a FileProvider based on the configured storage backend."""
     resolved_settings = settings or StorageSettings()
 
     if resolved_settings.provider == "local":
@@ -19,6 +20,4 @@ def create_file_provider(
     if resolved_settings.provider == "s3":
         return S3FileProvider(resolved_settings, logger=logger)
 
-    raise StorageConfigurationError(
-        f"Unsupported storage provider: {resolved_settings.provider}"
-    )
+    raise StorageConfigurationError(f"Unsupported storage provider: {resolved_settings.provider}")

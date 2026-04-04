@@ -2,7 +2,12 @@ from pathlib import Path
 
 import pytest
 
-from filelayer import LocalFileProvider, StorageObjectNotFoundError, StorageSettings
+from filelayer import (
+    LocalFileProvider,
+    StorageConfigurationError,
+    StorageObjectNotFoundError,
+    StorageSettings,
+)
 
 
 @pytest.fixture
@@ -43,5 +48,5 @@ def test_missing_file_raises(local_settings: StorageSettings) -> None:
 def test_path_traversal_is_blocked(local_settings: StorageSettings) -> None:
     provider = LocalFileProvider(local_settings)
 
-    with pytest.raises(Exception):
+    with pytest.raises(StorageConfigurationError):
         provider.write_file("../escape.txt", "nope")

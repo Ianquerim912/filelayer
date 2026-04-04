@@ -6,6 +6,7 @@ from typing import Any
 
 
 def configure_logging(level: int = logging.INFO) -> None:
+    """Set up basic structured logging at the given level."""
     logging.basicConfig(
         level=level,
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
@@ -13,6 +14,8 @@ def configure_logging(level: int = logging.INFO) -> None:
 
 
 class StructuredLogger:
+    """Thin wrapper that emits JSON-formatted log messages."""
+
     def __init__(self, logger: logging.Logger) -> None:
         self._logger = logger
 
