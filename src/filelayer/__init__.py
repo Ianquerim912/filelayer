@@ -1,3 +1,4 @@
+from .cache import S3FileCache
 from .config import StorageSettings
 from .exceptions import (
     StorageConfigurationError,
@@ -12,6 +13,7 @@ from .providers import FileProvider, LocalFileProvider, S3FileProvider
 from .service import StorageService
 
 __all__ = [
+    "S3FileCache",
     "StorageSettings",
     "StorageError",
     "StorageConfigurationError",

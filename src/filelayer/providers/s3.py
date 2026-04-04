@@ -13,6 +13,7 @@ from botocore.exceptions import (
     EndpointConnectionError,
 )
 
+from ..cache import S3FileCache
 from ..config import StorageSettings
 from ..exceptions import (
     StorageConfigurationError,
@@ -43,6 +44,11 @@ class S3FileProvider(FileProvider):
 
         self.log = StructuredLogger(logger or logging.getLogger(self.__class__.__name__))
         self.client: S3Client = self._build_client()
+        self.cache: S3FileCache | None = (
+            S3FileCache(cache_dir=settings.s3_cache_dir, logger=logger)
+            if settings.s3_cache_enabled
+            else None
+        )
 
     def _build_client(self) -> S3Client:
         try:
@@ -88,6 +94,48 @@ class S3FileProvider(FileProvider):
             return f"{prefix}/{clean_path}"
         return clean_path or prefix
 
+    def _get_object_bytes(self, key: str, filepath: str) -> bytes:
+        """Fetch object bytes from S3, using ETag-based cache when available."""
+        # Check cache for existing ETag
+        cached_etag: str | None = None
+        if self.cache:
+            cached_etag = self.cache.get_etag(self.bucket, key)
+
+        try:
+            get_kwargs: dict[str, str] = {"Bucket": self.bucket, "Key": key}
+            if cached_etag:
+                get_kwargs["IfNoneMatch"] = cached_etag
+
+            response = self.client.get_object(**get_kwargs)  # type: ignore[arg-type]
+            body = response["Body"].read()
+
+            if not isinstance(body, bytes):
+                raise StorageReadError(f"Unexpected response body for key: {filepath}")
+
+            # Cache the fresh response
+            etag = response.get("ETag", "")
+            if self.cache and etag:
+                self.cache.put(self.bucket, key, body, etag)
+
+            return body
+
+        except ClientError as exc:
+            error_code = exc.response.get("Error", {}).get("Code")
+
+            # 304 Not Modified — use cached content
+            if error_code == "304" and self.cache:
+                cached = self.cache.get(self.bucket, key)
+                if cached:
+                    self.log.info("s3_cache_revalidated", bucket=self.bucket, key=key)
+                    return cached[0]
+
+            if error_code in {"404", "NoSuchKey", "NotFound"}:
+                if self.cache:
+                    self.cache.evict(self.bucket, key)
+                raise StorageObjectNotFoundError(f"S3 object not found: {filepath}") from exc
+
+            raise  # re-raise for outer handlers
+
     def read_file(self, filepath: str) -> str:
         key = self._normalize_filepath(filepath)
 
@@ -99,12 +147,7 @@ class S3FileProvider(FileProvider):
         )
 
         try:
-            response = self.client.get_object(Bucket=self.bucket, Key=key)
-            body = response["Body"].read()
-
-            if not isinstance(body, bytes):
-                raise StorageReadError(f"Unexpected response body for key: {filepath}")
-
+            body = self._get_object_bytes(key, filepath)
             content = body.decode(self.settings.encoding)
 
             self.log.info(
@@ -115,11 +158,11 @@ class S3FileProvider(FileProvider):
             )
             return content
 
+        except (StorageObjectNotFoundError, StorageReadError):
+            raise
+
         except ClientError as exc:
             error_code = exc.response.get("Error", {}).get("Code")
-            if error_code in {"404", "NoSuchKey", "NotFound"}:
-                raise StorageObjectNotFoundError(f"S3 object not found: {filepath}") from exc
-
             self.log.exception(
                 "s3_read_text_failed",
                 bucket=self.bucket,
@@ -160,12 +203,15 @@ class S3FileProvider(FileProvider):
 
         try:
             body = file_content.encode(self.settings.encoding)
-            self.client.put_object(
+            response = self.client.put_object(
                 Bucket=self.bucket,
                 Key=key,
                 Body=body,
                 ContentType=f"text/plain; charset={self.settings.encoding}",
             )
+            etag = response.get("ETag", "")
+            if self.cache and etag:
+                self.cache.put(self.bucket, key, body, etag)
             self.log.info(
                 "s3_write_text_completed",
                 bucket=self.bucket,
@@ -200,11 +246,7 @@ class S3FileProvider(FileProvider):
         )
 
         try:
-            response = self.client.get_object(Bucket=self.bucket, Key=key)
-            body = response["Body"].read()
-
-            if not isinstance(body, bytes):
-                raise StorageReadError(f"Unexpected response body for key: {filepath}")
+            body = self._get_object_bytes(key, filepath)
 
             self.log.info(
                 "s3_read_bytes_completed",
@@ -214,11 +256,11 @@ class S3FileProvider(FileProvider):
             )
             return body
 
+        except (StorageObjectNotFoundError, StorageReadError):
+            raise
+
         except ClientError as exc:
             error_code = exc.response.get("Error", {}).get("Code")
-            if error_code in {"404", "NoSuchKey", "NotFound"}:
-                raise StorageObjectNotFoundError(f"S3 object not found: {filepath}") from exc
-
             self.log.exception(
                 "s3_read_bytes_failed",
                 bucket=self.bucket,
@@ -246,12 +288,15 @@ class S3FileProvider(FileProvider):
         )
 
         try:
-            self.client.put_object(
+            response = self.client.put_object(
                 Bucket=self.bucket,
                 Key=key,
                 Body=file_bytes,
                 ContentType="application/octet-stream",
             )
+            etag = response.get("ETag", "")
+            if self.cache and etag:
+                self.cache.put(self.bucket, key, file_bytes, etag)
             self.log.info(
                 "s3_write_bytes_completed",
                 bucket=self.bucket,

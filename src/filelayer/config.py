@@ -88,6 +88,15 @@ class StorageSettings(BaseSettings):
         validation_alias=AliasChoices("S3_MAX_ATTEMPTS"),
     )
 
+    s3_cache_enabled: bool = Field(
+        default=True,
+        validation_alias=AliasChoices("S3_CACHE_ENABLED"),
+    )
+    s3_cache_dir: Path | None = Field(
+        default=None,
+        validation_alias=AliasChoices("S3_CACHE_DIR"),
+    )
+
     @field_validator("default_prefix")
     @classmethod
     def normalize_default_prefix(cls, value: str) -> str:

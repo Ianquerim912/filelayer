@@ -94,6 +94,19 @@ print(storage.read_file("documents/example.txt"))
 print(storage.exists("documents/example.txt"))
 ```
 
+## S3 caching
+
+The S3 provider caches downloaded objects on the local filesystem to save bandwidth.
+Caching is **enabled by default** and uses ETag-based revalidation — on repeated reads,
+a conditional GET is sent to S3. If the object hasn't changed (304 Not Modified), the
+cached copy is used. Writes are write-through: after a successful upload, the content
+is stored in the cache immediately.
+
+```env
+S3_CACHE_ENABLED=true                    # default, set to false to disable
+S3_CACHE_DIR=/tmp/filelayer_cache        # default: system temp directory
+```
+
 ## Notes
 
 - `STORAGE_DEFAULT_PREFIX` is prepended to all paths or keys.
