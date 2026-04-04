@@ -12,7 +12,7 @@ def create_file_provider(
     logger: logging.Logger | None = None,
 ) -> FileProvider:
     """Create a FileProvider based on the configured storage backend."""
-    resolved_settings = settings or StorageSettings()
+    resolved_settings = settings or StorageSettings()  # type: ignore[call-arg]
 
     if resolved_settings.provider == "local":
         return LocalFileProvider(resolved_settings, logger=logger)

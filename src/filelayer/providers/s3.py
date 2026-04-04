@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import logging
 from pathlib import PurePosixPath
+from typing import TYPE_CHECKING
 
 import boto3
-from botocore.client import BaseClient
 from botocore.config import Config as BotoConfig
 from botocore.exceptions import (
     BotoCoreError,
@@ -23,6 +23,9 @@ from ..exceptions import (
 from ..logging_utils import StructuredLogger
 from .base import FileProvider
 
+if TYPE_CHECKING:
+    from mypy_boto3_s3 import S3Client
+
 
 class S3FileProvider(FileProvider):
     def __init__(
@@ -34,14 +37,14 @@ class S3FileProvider(FileProvider):
             raise StorageConfigurationError("S3FileProvider requires STORAGE_PROVIDER=s3.")
 
         self.settings = settings
-        self.bucket = settings.s3_bucket
-        if not self.bucket:
+        if not settings.s3_bucket:
             raise StorageConfigurationError("S3 bucket is not configured.")
+        self.bucket: str = settings.s3_bucket
 
         self.log = StructuredLogger(logger or logging.getLogger(self.__class__.__name__))
-        self.client = self._build_client()
+        self.client: S3Client = self._build_client()
 
-    def _build_client(self) -> BaseClient:
+    def _build_client(self) -> S3Client:
         try:
             boto_config = BotoConfig(
                 region_name=self.settings.s3_region_name,
