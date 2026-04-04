@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=69.0", "wheel"]
+requires = ["setuptools>=69.0", "wheel", "setuptools-scm>=8.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "filelayer"
-version = "0.1.2"
+dynamic = ["version"]
 description = "Simple file access abstraction over local filesystem and S3-compatible storage."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -77,6 +77,10 @@ warn_unused_configs = true
 [[tool.mypy.overrides]]
 module = ["boto3.*", "botocore.*"]
 ignore_missing_imports = true
+
+[tool.setuptools_scm]
+version_scheme = "guess-next-dev"
+local_scheme = "no-local-version"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
